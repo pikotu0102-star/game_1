@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>幸運轉盤</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>幸運轉盤</h1>
+
+  <div class="layout">
+    <!-- Wheel area -->
+    <div class="wheel-area">
+      <div class="wheel-wrapper">
+        <div class="pointer">▼</div>
+        <canvas id="wheel-canvas" width="500" height="500"></canvas>
+      </div>
+      <button id="spin-btn" class="btn btn-spin">旋轉！</button>
+      <div id="result" class="result hidden"></div>
+    </div>
+
+    <!-- Config panel -->
+    <div class="config-panel">
+      <h2>設定</h2>
+
+      <div class="config-row">
+        <label for="item-count">選項數量</label>
+        <input type="number" id="item-count" min="2" max="20" value="6" />
+      </div>
+
+      <div id="segments-list" class="segments-list"></div>
+
+      <button id="apply-btn" class="btn btn-apply">套用</button>
+    </div>
+  </div>
+
+  <script src="wheel.js"></script>
+</body>
+</html>
