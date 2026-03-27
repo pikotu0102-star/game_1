@@ -646,6 +646,112 @@ h3 {
   flex: 1;
 }
 
+/* ── Theme bar divider ───────────────────────────────────────────────────── */
+.theme-bar-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 4px;
+}
+
+/* ── Mode toggle button ──────────────────────────────────────────────────── */
+.btn-mode {
+  background: linear-gradient(135deg, rgba(60,30,10,0.88) 0%, rgba(30,10,0,0.88) 100%);
+  color: #daa520;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(218,165,32,0.45);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.btn-mode:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+  border-color: rgba(218,165,32,0.75);
+}
+
+/* ── Jiaobei view ────────────────────────────────────────────────────────── */
+.jiaobei-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.jiaobei-view.hidden { display: none; }
+
+/* ── Throw button ────────────────────────────────────────────────────────── */
+.btn-throw {
+  background: linear-gradient(135deg, #8b4513 0%, #4a1c08 100%);
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 14px 48px;
+  border-radius: 50px;
+  border: 2px solid rgba(218,165,32,0.6);
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(139,69,19,0.5), 0 4px 14px rgba(0,0,0,0.45);
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.btn-throw:hover:not(:disabled) {
+  filter: brightness(1.18);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(218,165,32,0.5), 0 6px 20px rgba(0,0,0,0.5);
+}
+
+.btn-throw:active:not(:disabled) {
+  transform: translateY(1px);
+  filter: brightness(0.94);
+}
+
+.btn-throw:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Jiaobei result ──────────────────────────────────────────────────────── */
+.jiaobei-result {
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 14px 32px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.15);
+  text-shadow: 0 0 16px currentColor;
+}
+
+.jiaobei-result.hidden { display: none; }
+
+.jiaobei-result.sheng {
+  color: #66bb6a;
+  border-color: rgba(102,187,106,0.45);
+  box-shadow: 0 0 22px rgba(102,187,106,0.22);
+}
+
+.jiaobei-result.yin {
+  color: #ef5350;
+  border-color: rgba(239,83,80,0.45);
+  box-shadow: 0 0 22px rgba(239,83,80,0.22);
+}
+
+.jiaobei-result.xiao {
+  color: #ffd54f;
+  border-color: rgba(255,213,79,0.45);
+  box-shadow: 0 0 22px rgba(255,213,79,0.22);
+}
+
+/* ── Jiaobei history color tints ─────────────────────────────────────────── */
+.history-item.jb-sheng .history-label { color: #66bb6a; }
+.history-item.jb-yin   .history-label { color: #ef5350; }
+.history-item.jb-xiao  .history-label { color: #ffd54f; }
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
   .wheel-wrapper {

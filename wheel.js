@@ -151,7 +151,7 @@
 
   function applyTheme(theme) {
     activeTheme = theme;
-    document.body.style.background = theme.bg;
+    if (!jiaobeiMode) document.body.style.background = theme.bg;
     // Update CSS variables for accent colour
     const root = document.documentElement;
     root.style.setProperty('--accent', theme.accent);
@@ -186,6 +186,10 @@
   let stats       = {};
   let prevSegIdx  = -1;
   let lastTickTime = 0;
+  let jiaobeiMode    = false;
+  let throwingAnim   = false;
+  let jiaobeiHistory = [];
+  let jiaobeiStats   = {};
 
   // ── DOM refs ──────────────────────────────────────────────────────────────
   const canvas        = document.getElementById('wheel-canvas');
@@ -212,6 +216,15 @@
   const teAccent      = document.getElementById('te-accent');
   const teSave        = document.getElementById('te-save');
   const teCancel      = document.getElementById('te-cancel');
+  const modeToggleBtn   = document.getElementById('mode-toggle-btn');
+  const jiaobeiView     = document.getElementById('jiaobei-view');
+  const jCanvas         = document.getElementById('jiaobei-canvas');
+  const jCtx            = jCanvas.getContext('2d');
+  const throwBtn        = document.getElementById('throw-btn');
+  const jiaobeiResultEl = document.getElementById('jiaobei-result');
+  const configPanel     = document.getElementById('config-panel');
+  const historyTitle    = document.getElementById('history-panel-title');
+  const wheelView       = document.getElementById('wheel-view');
 
   // ── Init ──────────────────────────────────────────────────────────────────
   function init() {
@@ -521,10 +534,12 @@
     renderHistory(); renderStats();
   }
   function renderHistory() {
-    if (!history.length) { historyList.innerHTML = '<p class="history-empty">還沒有紀錄喔！</p>'; return; }
-    historyList.innerHTML = history.map((item, i) => {
+    const src = jiaobeiMode ? jiaobeiHistory : history;
+    if (!src.length) { historyList.innerHTML = '<p class="history-empty">還沒有紀錄喔！</p>'; return; }
+    historyList.innerHTML = src.map((item, i) => {
       const timeStr = item.time.toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-      return `<div class="history-item${i===0?' history-item-new':''}">
+      const extra = item.type ? ` jb-${item.type}` : '';
+      return `<div class="history-item${extra}${i===0?' history-item-new':''}">
         <span class="history-rank">#${i+1}</span>
         <span class="history-label">${escHtml(item.label)}</span>
         <span class="history-time">${timeStr}</span>
@@ -532,7 +547,8 @@
     }).join('');
   }
   function renderStats() {
-    const entries = Object.entries(stats).sort((a,b)=>b[1]-a[1]);
+    const src = jiaobeiMode ? jiaobeiStats : stats;
+    const entries = Object.entries(src).sort((a,b)=>b[1]-a[1]);
     if (!entries.length) { statsList.innerHTML = '<p class="history-empty">尚無統計資料</p>'; return; }
     const total = entries.reduce((s,[,c])=>s+c,0);
     statsList.innerHTML = entries.map(([label,count]) => {
@@ -659,6 +675,222 @@
 
   teCancel.addEventListener('click', closeModal);
   themeModal.addEventListener('click', e => { if (e.target === themeModal) closeModal(); });
+
+  modeToggleBtn.addEventListener('click', e => { addRipple(modeToggleBtn, e); toggleMode(); });
+  throwBtn.addEventListener('click', e => { addRipple(throwBtn, e); throwJiaobei(); });
+
+  // ── Jiaobei mode ──────────────────────────────────────────────────────────
+  const JIAOBEI_BG = 'linear-gradient(135deg,#1c0900 0%,#2d1400 50%,#0f0500 100%)';
+
+  const JB_RESULTS = {
+    sheng: { label: '聖筊', desc: '神明同意，吉！',   emoji: '✨', cls: 'sheng' },
+    yin:   { label: '陰筊', desc: '神明不同意，凶。', emoji: '🔴', cls: 'yin'   },
+    xiao:  { label: '笑筊', desc: '神明在笑，請再問。', emoji: '😄', cls: 'xiao' },
+  };
+
+  const JCX = jCanvas.width  / 2;
+  const JCY = jCanvas.height / 2;
+
+  function drawCup(ctx2, x, y, scaleY, face) {
+    const W = 122, H = 58;
+    ctx2.save();
+    ctx2.translate(x, y);
+    ctx2.scale(1, scaleY);
+
+    // When y-flipped, visually show opposite face
+    const showFace = scaleY < 0 ? (face === 'yang' ? 'yin' : 'yang') : face;
+
+    // Wood radial gradient
+    const rg = ctx2.createRadialGradient(-W * 0.18, -H * 0.22, 2, 0, 0, W * 0.65);
+    rg.addColorStop(0,    showFace === 'yang' ? '#cb7d3c' : '#d9962e');
+    rg.addColorStop(0.42, '#8b4513');
+    rg.addColorStop(0.82, '#5c2b0a');
+    rg.addColorStop(1,    '#3a1408');
+
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, W / 2, H / 2, 0, 0, Math.PI * 2);
+    ctx2.fillStyle = rg;
+    ctx2.fill();
+
+    if (showFace === 'yang') {
+      // Yang (flat/concave): dark inner hollow
+      const hg = ctx2.createRadialGradient(0, H * 0.1, 0, 0, H * 0.06, W * 0.32);
+      hg.addColorStop(0,    '#1a0a02');
+      hg.addColorStop(0.65, '#3d1b08');
+      hg.addColorStop(1,    '#5c2b0a');
+      ctx2.beginPath();
+      ctx2.ellipse(0, H * 0.1, W * 0.37, H * 0.27, 0, 0, Math.PI * 2);
+      ctx2.fillStyle = hg;
+      ctx2.fill();
+    } else {
+      // Yin (dome/convex): specular highlight
+      const sg = ctx2.createRadialGradient(-W * 0.15, -H * 0.18, 0, 0, 0, W * 0.52);
+      sg.addColorStop(0,    'rgba(255,215,140,0.46)');
+      sg.addColorStop(0.38, 'rgba(200,140,55,0.14)');
+      sg.addColorStop(1,    'rgba(0,0,0,0)');
+      ctx2.beginPath();
+      ctx2.ellipse(0, 0, W / 2, H / 2, 0, 0, Math.PI * 2);
+      ctx2.fillStyle = sg;
+      ctx2.fill();
+    }
+
+    // Rim
+    ctx2.beginPath();
+    ctx2.ellipse(0, 0, W / 2, H / 2, 0, 0, Math.PI * 2);
+    ctx2.strokeStyle = '#6b3008';
+    ctx2.lineWidth = 3;
+    ctx2.stroke();
+
+    ctx2.restore();
+  }
+
+  function drawJiaobeiScene(c1, c2) {
+    jCtx.clearRect(0, 0, jCanvas.width, jCanvas.height);
+
+    // Warm incense atmosphere
+    const atmos = jCtx.createRadialGradient(JCX, JCY, 40, JCX, JCY, 240);
+    atmos.addColorStop(0, 'rgba(160,90,20,0.12)');
+    atmos.addColorStop(1, 'rgba(0,0,0,0)');
+    jCtx.fillStyle = atmos;
+    jCtx.fillRect(0, 0, jCanvas.width, jCanvas.height);
+
+    // Floor
+    const floorY = 400;
+    const floor  = jCtx.createLinearGradient(0, floorY, 0, jCanvas.height);
+    floor.addColorStop(0, 'rgba(110,55,15,0.38)');
+    floor.addColorStop(1, 'rgba(50,20,5,0.58)');
+    jCtx.fillStyle = floor;
+    jCtx.fillRect(0, floorY, jCanvas.width, jCanvas.height - floorY);
+    jCtx.beginPath();
+    jCtx.moveTo(0, floorY); jCtx.lineTo(jCanvas.width, floorY);
+    jCtx.strokeStyle = 'rgba(180,100,30,0.28)';
+    jCtx.lineWidth = 1; jCtx.stroke();
+
+    // Shadows on floor
+    [c1, c2].forEach(c => {
+      const alpha = Math.max(0, 1 - (floorY - c.y) / 200) * 0.28;
+      if (alpha > 0) {
+        jCtx.beginPath();
+        jCtx.ellipse(c.x, floorY - 6, 56, 10, 0, 0, Math.PI * 2);
+        jCtx.fillStyle = `rgba(0,0,0,${alpha})`;
+        jCtx.fill();
+      }
+    });
+
+    drawCup(jCtx, c1.x, c1.y, c1.scaleY, c1.face);
+    drawCup(jCtx, c2.x, c2.y, c2.scaleY, c2.face);
+  }
+
+  function drawJiaobeiInitial() {
+    drawJiaobeiScene(
+      { x: 165, y: 365, scaleY: 1, face: 'yang' },
+      { x: 335, y: 365, scaleY: 1, face: 'yang' }
+    );
+  }
+
+  function throwJiaobei() {
+    if (throwingAnim) return;
+
+    const face1 = Math.random() < 0.5 ? 'yang' : 'yin';
+    const face2 = Math.random() < 0.5 ? 'yang' : 'yin';
+
+    let resultType;
+    if ((face1 === 'yang') !== (face2 === 'yang')) resultType = 'sheng';
+    else if (face1 === 'yin')                      resultType = 'yin';
+    else                                           resultType = 'xiao';
+
+    throwingAnim = true;
+    throwBtn.disabled = true;
+    jiaobeiResultEl.classList.add('hidden');
+
+    const LAND1 = { x: 165, y: 365 };
+    const LAND2 = { x: 335, y: 365 };
+    const PEAK_Y  = 120;
+    const drift1  = (Math.random() - 0.5) * 80;
+    const drift2  = (Math.random() - 0.5) * 80;
+    const flips1  = 3 + Math.floor(Math.random() * 3);
+    const flips2  = 3 + Math.floor(Math.random() * 3);
+    const dur     = 1900 + Math.random() * 400;
+    const startT  = performance.now();
+
+    function jbFrame(now) {
+      const t      = Math.min((now - startT) / dur, 1);
+      const height = 4 * t * (1 - t);         // parabola peaking at t=0.5
+      const drift  = Math.sin(t * Math.PI);   // drift peaks at t=0.5
+
+      // Spin: oscillate then freeze at final face
+      const spinT = Math.min(t / 0.78, 1);
+      const sc1   = spinT < 1 ? Math.cos(flips1 * 2 * Math.PI * spinT) : 1;
+      const sc2   = spinT < 1 ? Math.cos(flips2 * 2 * Math.PI * spinT) : 1;
+
+      drawJiaobeiScene(
+        { x: LAND1.x + drift1 * drift,
+          y: LAND1.y - (LAND1.y - PEAK_Y) * height,
+          scaleY: Math.abs(sc1) < 0.055 ? 0.055 * Math.sign(sc1 || 1) : sc1,
+          face: face1 },
+        { x: LAND2.x + drift2 * drift,
+          y: LAND2.y - (LAND2.y - PEAK_Y) * height,
+          scaleY: Math.abs(sc2) < 0.055 ? 0.055 * Math.sign(sc2 || 1) : sc2,
+          face: face2 }
+      );
+
+      if (t < 1) {
+        requestAnimationFrame(jbFrame);
+      } else {
+        drawJiaobeiScene(
+          { x: LAND1.x, y: LAND1.y, scaleY: 1, face: face1 },
+          { x: LAND2.x, y: LAND2.y, scaleY: 1, face: face2 }
+        );
+        throwingAnim = false;
+        throwBtn.disabled = false;
+        showJiaobeiResult(resultType);
+      }
+    }
+    requestAnimationFrame(jbFrame);
+  }
+
+  function showJiaobeiResult(type) {
+    const r = JB_RESULTS[type];
+    jiaobeiResultEl.className = `jiaobei-result ${r.cls}`;
+    jiaobeiResultEl.textContent = `${r.emoji} ${r.label}：${r.desc}`;
+    jiaobeiResultEl.classList.remove('hidden');
+    jiaobeiResultEl.classList.remove('bounce');
+    void jiaobeiResultEl.offsetWidth;
+    jiaobeiResultEl.classList.add('bounce');
+    if (type === 'sheng') playCelebration(); else playTick(0.5);
+    addJiaobeiHistory(r.label, type);
+  }
+
+  function addJiaobeiHistory(label, type) {
+    jiaobeiHistory.unshift({ label, type, time: new Date() });
+    if (jiaobeiHistory.length > 10) jiaobeiHistory.pop();
+    jiaobeiStats[label] = (jiaobeiStats[label] || 0) + 1;
+    renderHistory(); renderStats();
+  }
+
+  function toggleMode() {
+    jiaobeiMode = !jiaobeiMode;
+    if (jiaobeiMode) {
+      modeToggleBtn.textContent = '🎡 轉盤';
+      document.body.style.background = JIAOBEI_BG;
+      wheelView.classList.add('hidden');
+      spinBtn.classList.add('hidden');
+      resultEl.classList.add('hidden');
+      jiaobeiView.classList.remove('hidden');
+      configPanel.classList.add('hidden');
+      historyTitle.textContent = '🪬 擲筊紀錄';
+      drawJiaobeiInitial();
+    } else {
+      modeToggleBtn.textContent = '🪬 擲筊';
+      document.body.style.background = activeTheme.bg;
+      wheelView.classList.remove('hidden');
+      spinBtn.classList.remove('hidden');
+      jiaobeiView.classList.add('hidden');
+      configPanel.classList.remove('hidden');
+      historyTitle.textContent = '📝 抽獎紀錄';
+    }
+    renderHistory(); renderStats();
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function escHtml(str) {
