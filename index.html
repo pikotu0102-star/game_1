@@ -25,6 +25,32 @@
 </head>
 <body>
 
+  <!-- Theme bar -->
+  <div class="theme-bar">
+    <select id="theme-select" class="theme-select"></select>
+    <button id="theme-add-btn"  class="btn btn-theme-act" title="新增主題">＋ 新增</button>
+    <button id="theme-edit-btn" class="btn btn-theme-act hidden" title="編輯主題">✏️</button>
+    <button id="theme-del-btn"  class="btn btn-theme-del hidden" title="刪除主題">🗑️</button>
+  </div>
+
+  <!-- Theme editor modal -->
+  <div id="theme-modal" class="theme-modal hidden" role="dialog" aria-modal="true">
+    <div class="theme-modal-box">
+      <h3 id="theme-modal-title">新增主題</h3>
+      <div class="theme-form">
+        <label>圖示（Emoji）<input type="text" id="te-emoji" maxlength="2" value="⭐" /></label>
+        <label>名稱<input type="text" id="te-name" placeholder="我的主題" /></label>
+        <label>背景色（起）<input type="color" id="te-bg1" value="#1a0533" /></label>
+        <label>背景色（末）<input type="color" id="te-bg2" value="#0d1b5e" /></label>
+        <label>強調色<input type="color" id="te-accent" value="#f0c040" /></label>
+      </div>
+      <div class="theme-modal-actions">
+        <button id="te-save"   class="btn btn-apply">儲存</button>
+        <button id="te-cancel" class="btn btn-clear">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Star decorations -->
   <div class="stars" aria-hidden="true">
     <span class="star">✦</span>
