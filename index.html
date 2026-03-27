@@ -25,30 +25,51 @@
 </head>
 <body>
 
-  <!-- Theme bar -->
-  <div class="theme-bar">
-    <select id="theme-select" class="theme-select"></select>
-    <button id="theme-add-btn"  class="btn btn-theme-act" title="新增主題">＋ 新增</button>
-    <button id="theme-edit-btn" class="btn btn-theme-act hidden" title="編輯主題">✏️</button>
-    <button id="theme-del-btn"  class="btn btn-theme-del hidden" title="刪除主題">🗑️</button>
-    <div class="theme-bar-divider"></div>
-    <button id="mode-toggle-btn" class="btn btn-mode">🪬 擲筊</button>
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button id="settings-btn" class="btn btn-settings">⚙️ 設定</button>
+    </div>
+    <div class="top-bar-center">
+      <select id="theme-select" class="theme-select"></select>
+    </div>
+    <div class="top-bar-right">
+      <button id="add-theme-btn" class="btn btn-add-theme">➕ 新增</button>
+      <div class="top-bar-divider"></div>
+      <button id="mode-toggle-btn" class="btn btn-mode">🪬 擲筊</button>
+    </div>
   </div>
 
-  <!-- Theme editor modal -->
-  <div id="theme-modal" class="theme-modal hidden" role="dialog" aria-modal="true">
-    <div class="theme-modal-box">
-      <h3 id="theme-modal-title">新增主題</h3>
-      <div class="theme-form">
-        <label>圖示（Emoji）<input type="text" id="te-emoji" maxlength="2" value="⭐" /></label>
-        <label>名稱<input type="text" id="te-name" placeholder="我的主題" /></label>
-        <label>背景色（起）<input type="color" id="te-bg1" value="#1a0533" /></label>
-        <label>背景色（末）<input type="color" id="te-bg2" value="#0d1b5e" /></label>
-        <label>強調色<input type="color" id="te-accent" value="#f0c040" /></label>
+  <!-- Theme management modal -->
+  <div id="mgmt-modal" class="mgmt-modal hidden" role="dialog" aria-modal="true">
+    <div class="mgmt-modal-box">
+      <div class="mgmt-header">
+        <h3>🎯 主題管理</h3>
+        <button id="mgmt-add-btn"   class="btn btn-mgmt-add">➕ 新增主題</button>
+        <button id="mgmt-close-btn" class="btn btn-mgmt-close" aria-label="關閉">✕</button>
       </div>
-      <div class="theme-modal-actions">
-        <button id="te-save"   class="btn btn-apply">儲存</button>
-        <button id="te-cancel" class="btn btn-clear">取消</button>
+      <div id="theme-cards" class="theme-cards"></div>
+    </div>
+  </div>
+
+  <!-- Theme edit modal -->
+  <div id="edit-modal" class="edit-modal hidden" role="dialog" aria-modal="true">
+    <div class="edit-modal-box">
+      <h3 id="edit-modal-title">新增主題</h3>
+      <div class="edit-form">
+        <div class="edit-name-row">
+          <input type="text" id="edit-emoji" maxlength="2" value="⭐" class="edit-emoji-input" />
+          <input type="text" id="edit-name" placeholder="主題名稱" class="edit-name-input" />
+        </div>
+        <div class="edit-items-header">
+          <span>轉盤選項</span>
+          <button id="edit-add-item-btn" class="btn btn-sm">➕ 新增選項</button>
+        </div>
+        <div id="edit-items-list" class="edit-items-list"></div>
+      </div>
+      <div class="edit-actions">
+        <button id="edit-save-btn"   class="btn btn-apply">儲存</button>
+        <button id="edit-cancel-btn" class="btn btn-clear">取消</button>
       </div>
     </div>
   </div>
@@ -92,40 +113,21 @@
       </div>
     </div>
 
-    <!-- Right column: config + history -->
+    <!-- Right column: history only -->
     <div class="right-column">
-
-      <!-- Config panel -->
-      <div id="config-panel" class="config-panel">
-        <h2>⚙️ 設定</h2>
-
-        <div class="config-row">
-          <label for="item-count">選項數量</label>
-          <input type="number" id="item-count" min="2" max="20" value="6" />
-        </div>
-
-        <div id="segments-list" class="segments-list"></div>
-
-        <button id="apply-btn" class="btn btn-apply">套用</button>
-      </div>
-
-      <!-- History panel -->
       <div class="history-panel">
         <div class="history-header">
           <h2 id="history-panel-title">📝 抽獎紀錄</h2>
           <button id="clear-history-btn" class="btn btn-clear">清除</button>
         </div>
-
         <div id="history-list" class="history-list">
           <p class="history-empty">還沒有紀錄喔！</p>
         </div>
-
         <div class="stats-section">
           <h3>📊 統計</h3>
           <div id="stats-list" class="stats-list"></div>
         </div>
       </div>
-
     </div>
   </div>
 

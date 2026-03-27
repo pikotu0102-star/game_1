@@ -1,6 +1,6 @@
 // service-worker.js — 幸運轉盤 PWA 離線快取
 
-const CACHE_NAME = 'lucky-wheel-v3';
+const CACHE_NAME = 'lucky-wheel-v4';
 
 // 需要快取的所有靜態資源
 const ASSETS = [
