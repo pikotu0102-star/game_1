@@ -4,6 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>幸運轉盤</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Theme color (Android / Chrome) -->
+  <meta name="theme-color" content="#7b2fbe" />
+
+  <!-- iOS PWA 支援 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="幸運轉盤" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <!-- Android / 通用 -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="幸運轉盤" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -76,5 +93,16 @@
   </div>
 
   <script src="wheel.js"></script>
+
+  <!-- Service Worker 註冊 -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker 已註冊，範圍：', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker 註冊失敗：', err));
+      });
+    }
+  </script>
 </body>
 </html>
