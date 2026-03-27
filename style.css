@@ -115,8 +115,8 @@ h3 {
 
 .wheel-wrapper {
   position: relative;
-  width: 500px;
-  height: 500px;
+  width: min(500px, calc(100vw - 32px));
+  height: min(500px, calc(100vw - 32px));
 }
 
 .pointer {
@@ -131,8 +131,11 @@ h3 {
   line-height: 1;
 }
 
-#wheel-canvas {
+#wheel-canvas,
+#jiaobei-canvas {
   display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   box-shadow:
     0 0 40px rgba(0,0,0,0.55),
@@ -972,26 +975,113 @@ h3 {
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
+  body {
+    padding: 14px 12px;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .layout {
+    gap: 20px;
+  }
+
   .top-bar {
     grid-template-columns: auto 1fr auto;
-    gap: 8px;
+    gap: 6px;
+    padding: 0;
+    margin-bottom: 12px;
   }
-  .wheel-wrapper {
-    width: 320px;
-    height: 320px;
+
+  .btn-settings,
+  .btn-add-theme,
+  .btn-mode {
+    font-size: 0.78rem;
+    padding: 7px 10px;
   }
-  #wheel-canvas {
-    width: 320px;
-    height: 320px;
+
+  .theme-select {
+    font-size: 0.82rem;
+    padding: 6px 10px;
+    min-width: 0;
   }
+
   .right-column {
     width: 100%;
-    max-width: 420px;
+    max-width: 100%;
   }
+
+  .history-panel {
+    padding: 16px;
+  }
+
   .mgmt-modal-box {
+    padding: 20px 14px;
+    max-height: 90vh;
+  }
+
+  .theme-cards {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .edit-modal-box {
     padding: 20px 16px;
   }
-  .theme-cards {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+  .btn-spin {
+    font-size: 1.1rem;
+    padding: 14px 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 12px 10px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .top-bar-left  { order: 1; }
+  .top-bar-center { order: 2; flex: 1 0 100%; justify-content: center; }
+  .top-bar-right { order: 3; }
+
+  .top-bar-divider { display: none; }
+
+  .theme-select {
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .btn-spin {
+    font-size: 1rem;
+    padding: 12px 36px;
+  }
+
+  .btn-throw {
+    font-size: 1rem;
+    padding: 12px 32px;
+  }
+
+  .result {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+  }
+
+  .jiaobei-result {
+    font-size: 1.2rem;
+    padding: 10px 20px;
   }
 }
