@@ -228,18 +228,23 @@
   // ── Spin logic ────────────────────────────────────────────────────────────
 
   /**
-   * Return the index of the segment currently under the top pointer.
-   * The pointer corresponds to rotation-fraction = rot / (2π) mod 1.
+   * Return the index of the segment currently under the top pointer (▼ at 12 o'clock).
+   *
+   * drawWheel(rot) places segment-0's leading edge at angle (rot - π/2).
+   * The pointer sits at canvas angle -π/2.
+   * A segment occupies the pointer when:  cumAngle_i ≤ (-rot mod 2π) < cumAngle_{i+1}
+   * So we compute offset = (2π - normalised) % 2π and compare against
+   * cumulative arc lengths in radians.
    */
   function getSegmentAtPointer(rot) {
     if (!segments.length) return -1;
     const totalWeight = segments.reduce((s, seg) => s + seg.weight, 0);
     const normalised  = ((rot % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    const fraction    = normalised / (2 * Math.PI);
-    let cumFrac = 0;
+    const offset      = (2 * Math.PI - normalised) % (2 * Math.PI);
+    let cumAngle = 0;
     for (let i = 0; i < segments.length; i++) {
-      cumFrac += segments[i].weight / totalWeight;
-      if (fraction < cumFrac) return i;
+      cumAngle += (segments[i].weight / totalWeight) * 2 * Math.PI;
+      if (offset < cumAngle) return i;
     }
     return segments.length - 1;
   }
@@ -254,7 +259,17 @@
     return segments.length - 1;
   }
 
-  function targetRotationForWinner(winnerIndex) {
+  /**
+   * Calculate the rotation delta so the winning segment lands under the pointer.
+   *
+   * drawWheel(rot) puts the leading edge of segment-0 at angle (rot - π/2).
+   * The pointer is at -π/2.  For the winner's midpoint to align with -π/2:
+   *   rot ≡ (1 - midFrac) × 2π  (mod 2π)
+   *
+   * Therefore:  totalAngle = (1 - midFrac) × 2π  - startRotation  + fullSpins × 2π
+   * (fullSpins ≥ 5 guarantees totalAngle > 0 even when startRotation is near 2π)
+   */
+  function targetRotationForWinner(winnerIndex, startRotation) {
     const totalWeight = segments.reduce((s, seg) => s + seg.weight, 0);
     let startFrac = 0;
     for (let i = 0; i < winnerIndex; i++) {
@@ -262,7 +277,7 @@
     }
     const midFrac   = startFrac + (segments[winnerIndex].weight / totalWeight) / 2;
     const fullSpins = 5 + Math.floor(Math.random() * 5); // 5–9 full spins
-    return fullSpins * 2 * Math.PI + midFrac * 2 * Math.PI;
+    return (1 - midFrac) * 2 * Math.PI - startRotation + fullSpins * 2 * Math.PI;
   }
 
   function easeOut(t) {
@@ -282,8 +297,8 @@
     resultEl.classList.add('hidden');
 
     const winnerIndex   = pickWinner();
-    const totalAngle    = targetRotationForWinner(winnerIndex);
     const startRotation = rotation;
+    const totalAngle    = targetRotationForWinner(winnerIndex, startRotation);
     const duration      = 4000 + Math.random() * 1500; // 4–5.5 s
     const startTime     = performance.now();
 
