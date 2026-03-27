@@ -778,23 +778,31 @@
     renderHistory(); renderStats();
   }
 
+  function setWheelVisible(on) {
+    wheelView.style.display  = on ? ''     : 'none';
+    spinBtn.style.display    = on ? ''     : 'none';
+    if (!on) resultEl.style.display = 'none';
+    else     resultEl.style.display = '';
+  }
+
+  function setJiaobeiVisible(on) {
+    jiaobeiView.style.display = on ? 'flex' : 'none';
+  }
+
   function toggleMode() {
     jiaobeiMode = !jiaobeiMode;
     if (jiaobeiMode) {
       modeToggleBtn.textContent = '🎡 轉盤';
       document.body.style.background = JIAOBEI_BG;
-      wheelView.classList.add('hidden');
-      spinBtn.classList.add('hidden');
-      resultEl.classList.add('hidden');
-      jiaobeiView.classList.remove('hidden');
+      setWheelVisible(false);
+      setJiaobeiVisible(true);
       historyTitle.textContent = '🪬 擲筊紀錄';
       drawJiaobeiInitial();
     } else {
       modeToggleBtn.textContent = '🪬 擲筊';
       document.body.style.background = BODY_BG;
-      wheelView.classList.remove('hidden');
-      spinBtn.classList.remove('hidden');
-      jiaobeiView.classList.add('hidden');
+      setWheelVisible(true);
+      setJiaobeiVisible(false);
       historyTitle.textContent = '📝 抽獎紀錄';
     }
     renderHistory(); renderStats();
@@ -837,6 +845,9 @@
     document.body.style.background = BODY_BG;
     document.documentElement.style.setProperty('--accent', '#f0c040');
     document.documentElement.style.setProperty('--accent-glow', ACCENT_GLOW);
+    // Ensure correct initial visibility regardless of CSS cache
+    setJiaobeiVisible(false);
+    setWheelVisible(true);
     loadData();
     applyTheme(activeThemeId);
     renderHistory();
