@@ -95,22 +95,27 @@
   <div class="layout">
     <!-- Wheel area -->
     <div class="wheel-area">
-      <div class="wheel-wrapper" id="wheel-view">
-        <div class="pointer">▼</div>
-        <canvas id="wheel-canvas" width="500" height="500"></canvas>
-        <div class="flash-overlay" id="flash-overlay"></div>
-      </div>
-      <button id="spin-btn" class="btn btn-spin">旋轉！</button>
-      <div id="result" class="result hidden"></div>
 
-      <!-- 擲筊視圖（預設隱藏） -->
-      <div id="jiaobei-view" class="jiaobei-view hidden">
+      <!-- 轉盤模式 -->
+      <div id="wheel-mode" style="display:flex;flex-direction:column;align-items:center;gap:20px">
+        <div class="wheel-wrapper">
+          <div class="pointer">▼</div>
+          <canvas id="wheel-canvas" width="500" height="500"></canvas>
+          <div class="flash-overlay" id="flash-overlay"></div>
+        </div>
+        <button id="spin-btn" class="btn btn-spin">旋轉！</button>
+        <div id="result" class="result hidden"></div>
+      </div>
+
+      <!-- 擲筊模式（預設隱藏） -->
+      <div id="jiaobei-view" class="jiaobei-view" style="display:none">
         <div class="wheel-wrapper">
           <canvas id="jiaobei-canvas" width="500" height="500"></canvas>
         </div>
         <button id="throw-btn" class="btn btn-throw">擲筊！</button>
         <div id="jiaobei-result" class="jiaobei-result hidden"></div>
       </div>
+
     </div>
 
     <!-- Right column: history only -->

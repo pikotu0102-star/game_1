@@ -160,7 +160,7 @@
   const throwBtn        = document.getElementById('throw-btn');
   const jiaobeiResultEl = document.getElementById('jiaobei-result');
   const historyTitle    = document.getElementById('history-panel-title');
-  const wheelView       = document.getElementById('wheel-view');
+  const wheelMode       = document.getElementById('wheel-mode');
 
   // ── Theme application ─────────────────────────────────────────────────────
   function applyTheme(id) {
@@ -778,32 +778,21 @@
     renderHistory(); renderStats();
   }
 
-  function setWheelVisible(on) {
-    wheelView.style.display  = on ? ''     : 'none';
-    spinBtn.style.display    = on ? ''     : 'none';
-    if (!on) resultEl.style.display = 'none';
-    else     resultEl.style.display = '';
-  }
-
-  function setJiaobeiVisible(on) {
-    jiaobeiView.style.display = on ? 'flex' : 'none';
-  }
-
   function toggleMode() {
     jiaobeiMode = !jiaobeiMode;
     if (jiaobeiMode) {
       modeToggleBtn.textContent = '🎡 轉盤';
       document.body.style.background = JIAOBEI_BG;
-      setWheelVisible(false);
-      setJiaobeiVisible(true);
-      historyTitle.textContent = '🪬 擲筊紀錄';
+      wheelMode.style.display   = 'none';
+      jiaobeiView.style.display = 'flex';
+      historyTitle.textContent  = '🪬 擲筊紀錄';
       drawJiaobeiInitial();
     } else {
       modeToggleBtn.textContent = '🪬 擲筊';
       document.body.style.background = BODY_BG;
-      setWheelVisible(true);
-      setJiaobeiVisible(false);
-      historyTitle.textContent = '📝 抽獎紀錄';
+      wheelMode.style.display   = 'flex';
+      jiaobeiView.style.display = 'none';
+      historyTitle.textContent  = '📝 抽獎紀錄';
     }
     renderHistory(); renderStats();
   }
@@ -845,9 +834,9 @@
     document.body.style.background = BODY_BG;
     document.documentElement.style.setProperty('--accent', '#f0c040');
     document.documentElement.style.setProperty('--accent-glow', ACCENT_GLOW);
-    // Ensure correct initial visibility regardless of CSS cache
-    setJiaobeiVisible(false);
-    setWheelVisible(true);
+    // Ensure correct initial visibility (inline style, immune to CSS cache)
+    wheelMode.style.display   = 'flex';
+    jiaobeiView.style.display = 'none';
     loadData();
     applyTheme(activeThemeId);
     renderHistory();
