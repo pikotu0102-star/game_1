@@ -10,6 +10,8 @@
   padding: 0;
 }
 
+.hidden { display: none !important; }
+
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   background: linear-gradient(135deg, #1a0533 0%, #0d1b5e 55%, #0a0a2e 100%);
